@@ -1,8 +1,10 @@
 package ch.heigvd.amt.notes.model;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Builder(toBuilder = true)
+@EqualsAndHashCode
+@Getter
 public class User {
   private final String username;
   private String firstName;

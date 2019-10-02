@@ -10,3 +10,8 @@
  - Bumped JUnit to v5
  - Created two model entities: user and note
 
+### Branch: step-003-datastore
+ - Refactored model classes to use builder pattern and immutable objects (lombok)
+ - Introduced an in-memory datastore, for Users and Notes
+ - 100% test coverage on model and datastore packages
+
