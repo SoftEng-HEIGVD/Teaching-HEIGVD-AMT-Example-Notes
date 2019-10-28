@@ -1,0 +1,5 @@
+#!/bin/sh
+
+create-jdbc-connection-pool --restype javax.sql.DataSource --datasourceclassname com.mysql.cj.jdbc.MysqlXADataSource --property 'user=root:password=bananaSplit:url=jdbc\:mysql\://db\:3306/amt_notes:useSSL=false' amt_notes
+
+create-jdbc-resource --connectionpoolid amt_notes jdbc/notes

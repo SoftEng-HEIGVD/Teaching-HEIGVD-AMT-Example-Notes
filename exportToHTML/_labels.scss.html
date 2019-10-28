@@ -1,0 +1,46 @@
+<html>
+<head>
+<title>_labels.scss</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #d0d0ff;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #e8bf6a;}
+.s3 { color: #bababa;}
+.s4 { color: #a9b7c6;}
+.s5 { color: #6d9cbe;}
+.s6 { color: #cc7832;}
+.s7 { color: #6897bb;}
+.s8 { color: #a5c261;}
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+_labels.scss</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">@mixin </span><span class="s2">label-style</span><span class="s1">(){</span>
+<a name="l2"><span class="ln">2    </span></a>     <span class="s3">padding</span><span class="s4">: </span><span class="s5">$padding-label-vertical $padding-label-horizontal</span><span class="s6">;</span>
+<a name="l3"><span class="ln">3    </span></a>     <span class="s3">border</span><span class="s4">: </span><span class="s7">1</span><span class="s8">px solid </span><span class="s5">$default-color</span><span class="s6">;</span>
+<a name="l4"><span class="ln">4    </span></a>     <span class="s3">border-radius</span><span class="s4">: </span><span class="s5">$border-radius-small</span><span class="s6">;</span>
+<a name="l5"><span class="ln">5    </span></a>     <span class="s3">color</span><span class="s4">: </span><span class="s5">$default-color</span><span class="s6">;</span>
+<a name="l6"><span class="ln">6    </span></a>     <span class="s3">font-weight</span><span class="s4">: </span><span class="s5">$font-weight-semi</span><span class="s6">;</span>
+<a name="l7"><span class="ln">7    </span></a>     <span class="s3">font-size</span><span class="s4">: </span><span class="s5">$font-size-small</span><span class="s6">;</span>
+<a name="l8"><span class="ln">8    </span></a>     <span class="s3">text-transform</span><span class="s4">: </span><span class="s8">uppercase</span><span class="s6">;</span>
+<a name="l9"><span class="ln">9    </span></a>     <span class="s3">display</span><span class="s4">: </span><span class="s8">inline-block</span><span class="s6">;</span>
+<a name="l10"><span class="ln">10   </span></a>     <span class="s3">vertical-align</span><span class="s4">: </span><span class="s8">middle</span><span class="s6">;</span>
+<a name="l11"><span class="ln">11   </span></a><span class="s1">}</span>
+<a name="l12"><span class="ln">12   </span></a>
+<a name="l13"><span class="ln">13   </span></a><span class="s0">@mixin </span><span class="s2">label-color</span><span class="s1">(</span><span class="s5">$color</span><span class="s1">){</span>
+<a name="l14"><span class="ln">14   </span></a>     <span class="s3">border-color</span><span class="s4">: </span><span class="s5">$color</span><span class="s6">;</span>
+<a name="l15"><span class="ln">15   </span></a>     <span class="s3">color</span><span class="s4">: </span><span class="s5">$color</span><span class="s6">;</span>
+<a name="l16"><span class="ln">16   </span></a><span class="s1">}</span>
+<a name="l17"><span class="ln">17   </span></a><span class="s0">@mixin </span><span class="s2">label-color-fill</span><span class="s1">(</span><span class="s5">$color</span><span class="s1">){</span>
+<a name="l18"><span class="ln">18   </span></a>     <span class="s3">border-color</span><span class="s4">: </span><span class="s5">$color</span><span class="s6">;</span>
+<a name="l19"><span class="ln">19   </span></a>     <span class="s3">color</span><span class="s4">: </span><span class="s5">$white-color</span><span class="s6">;</span>
+<a name="l20"><span class="ln">20   </span></a>     <span class="s3">background-color</span><span class="s4">: </span><span class="s5">$color</span><span class="s6">;</span>
+<a name="l21"><span class="ln">21   </span></a><span class="s1">}</span></pre>
+</body>
+</html>

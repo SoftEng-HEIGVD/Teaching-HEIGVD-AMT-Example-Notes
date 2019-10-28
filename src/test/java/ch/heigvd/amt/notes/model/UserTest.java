@@ -13,11 +13,11 @@ class UserTest {
       .firstName("olivier")
       .lastName("liechti")
       .email("olivier.liechti@heig-vd.ch")
-      .hashedPassword("xxxx")
+      .password("xxxx")
       .build();
     assertEquals("olivier", user.getFirstName());
     assertEquals("liechti", user.getLastName());
     assertEquals("olivier.liechti@heig-vd.ch", user.getEmail());
-    assertEquals("xxxx", user.getHashedPassword());
+    assertEquals("xxxx", user.getPassword());
   }
 }

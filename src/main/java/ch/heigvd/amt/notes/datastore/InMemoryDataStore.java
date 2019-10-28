@@ -1,13 +1,17 @@
 package ch.heigvd.amt.notes.datastore;
 
+import ch.heigvd.amt.notes.datastore.exceptions.DuplicateKeyException;
+import ch.heigvd.amt.notes.datastore.exceptions.KeyNotFoundException;
 import ch.heigvd.amt.notes.model.Note;
 import ch.heigvd.amt.notes.model.User;
 
+import javax.ejb.Singleton;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class InMemoryDataSore implements IInMemoryDatastore {
+@Singleton
+public class InMemoryDataStore implements IInMemoryDatastore {
 
   public static final boolean INCLUDE_DELETED = true;
 
@@ -41,44 +45,47 @@ public class InMemoryDataSore implements IInMemoryDatastore {
   }
 
   @Override
-  public void insertUser(User user) {
+  public void insertUser(User user) throws DuplicateKeyException {
+    if (storeUsers.get(user.getUsername()) != null) {
+      throw new DuplicateKeyException("User with username " + user.getUsername() + " already exists.");
+    }
     User clone = user.toBuilder().build();
     storeUsers.put(user.getUsername(), clone);
   }
 
   @Override
-  public User loadUserByUsername(String username) throws DataNotFoundException {
+  public User loadUserByUsername(String username) throws KeyNotFoundException {
     User user = storeUsers.get(username);
     if (user == null) {
-      throw new DataNotFoundException("Could not find user " + username);
+      throw new KeyNotFoundException("Could not find user " + username);
     }
     User clone = user.toBuilder().build();
     return clone;
   }
 
   @Override
-  public void updateUser(User user) throws DataNotFoundException {
+  public void updateUser(User user) throws KeyNotFoundException {
     User storedUser = storeUsers.get(user.getUsername());
     if (storedUser == null) {
-      throw new DataNotFoundException("Could not find user wit username " + user.getUsername());
+      throw new KeyNotFoundException("Could not find user wit username " + user.getUsername());
     }
     User clone = user.toBuilder().build();
     storeUsers.put(user.getUsername(), clone);
   }
 
   @Override
-  public Note getNoteById(long noteId) throws DataNotFoundException {
+  public Note getNoteById(long noteId) throws KeyNotFoundException {
     Note storedNote = storeNotes.get(noteId);
     if (storedNote == null) {
-      throw new DataNotFoundException("Could not find note wit id " + noteId);
+      throw new KeyNotFoundException("Could not find note wit id " + noteId);
     }
     return storedNote.toBuilder().build();
   }
 
   @Override
-  public List<Note> getNotesByAuthorUsername(String username, boolean includeDeleted) throws DataNotFoundException {
+  public List<Note> getNotesByAuthorUsername(String username, boolean includeDeleted) throws KeyNotFoundException {
     if (storeUsers.get(username) == null) {
-      throw new DataNotFoundException("Could not find user " + username );
+      throw new KeyNotFoundException("Could not find user " + username );
     }
     List<Note> userNotes = storeNotes.values()
       .stream()
@@ -93,9 +100,9 @@ public class InMemoryDataSore implements IInMemoryDatastore {
   }
 
   @Override
-  public synchronized long insertNote(String username, Note note) throws DataNotFoundException {
+  public synchronized long insertNote(String username, Note note) throws KeyNotFoundException {
     if (storeUsers.get(username) == null) {
-      throw new DataNotFoundException("Could not find user " + username );
+      throw new KeyNotFoundException("Could not find user " + username );
     }
     User authorStoredInDB = storeUsers.get(username).toBuilder().build();
     lastNoteId++;
@@ -108,19 +115,19 @@ public class InMemoryDataSore implements IInMemoryDatastore {
   }
 
   @Override
-  public void updateNote(Note note) throws DataNotFoundException {
+  public void updateNote(Note note) throws KeyNotFoundException {
     Note storedNote = storeNotes.get(note.getId());
     if (storedNote == null) {
-      throw new DataNotFoundException("Could not find note with id " + note.getId());
+      throw new KeyNotFoundException("Could not find note with id " + note.getId());
     }
     storeNotes.put(note.getId(), note.toBuilder().build());
   }
 
   @Override
-  public void deleteNote(long noteId) throws DataNotFoundException{
+  public void deleteNote(long noteId) throws KeyNotFoundException {
     Note storedNote = storeNotes.get(noteId);
     if (storedNote == null) {
-      throw new DataNotFoundException("Could not find note with id " + noteId);
+      throw new KeyNotFoundException("Could not find note with id " + noteId);
     }
     Note deletedNote = storedNote.toBuilder().isDeleted(true).build();
     updateNote(deletedNote);

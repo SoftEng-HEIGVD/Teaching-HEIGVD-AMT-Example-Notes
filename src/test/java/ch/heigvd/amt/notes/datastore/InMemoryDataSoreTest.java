@@ -1,5 +1,7 @@
 package ch.heigvd.amt.notes.datastore;
 
+import ch.heigvd.amt.notes.datastore.exceptions.DuplicateKeyException;
+import ch.heigvd.amt.notes.datastore.exceptions.KeyNotFoundException;
 import ch.heigvd.amt.notes.model.Note;
 import ch.heigvd.amt.notes.model.User;
 import org.junit.jupiter.api.Test;
@@ -11,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryDataSoreTest {
 
   @Test
-  void itShouldBePossibleToStoreAndRetrieveUsers() {
-    IInMemoryDatastore store = new InMemoryDataSore();
+  void itShouldBePossibleToStoreAndRetrieveUsers() throws DuplicateKeyException {
+    IInMemoryDatastore store = new InMemoryDataStore();
 
     List<User> users = store.getAllUsers();
     assertEquals(0, users.size());
@@ -27,8 +29,20 @@ class InMemoryDataSoreTest {
   }
 
   @Test
-  void getAllUsersShouldReturnObjectClones() throws DataNotFoundException {
-    IInMemoryDatastore store = new InMemoryDataSore();
+  void itShouldNotBePossibleToInsertAUserWithDuplicateUsername() throws DuplicateKeyException {
+    IInMemoryDatastore store = new InMemoryDataStore();
+    User olivier = User.builder().username("olivier").build();
+    store.insertUser(olivier);
+    assertThrows(DuplicateKeyException.class, () -> {
+      User olivierDuplicate = User.builder().username("olivier").build();
+      store.insertUser(olivierDuplicate);
+    });
+
+  }
+
+  @Test
+  void getAllUsersShouldReturnObjectClones() throws KeyNotFoundException, DuplicateKeyException {
+    IInMemoryDatastore store = new InMemoryDataStore();
     User olivier = User.builder().username("olivier").build();
     store.insertUser(olivier);
     User olivierLoaded = store.loadUserByUsername("olivier");
@@ -37,8 +51,8 @@ class InMemoryDataSoreTest {
   }
 
   @Test
-  void itShouldBePossibleToUpdateAUser() throws DataNotFoundException {
-    IInMemoryDatastore store = new InMemoryDataSore();
+  void itShouldBePossibleToUpdateAUser() throws KeyNotFoundException, DuplicateKeyException {
+    IInMemoryDatastore store = new InMemoryDataStore();
     User olivier = User.builder()
       .username("oliechti")
       .firstName("olivier")
@@ -52,8 +66,8 @@ class InMemoryDataSoreTest {
   }
 
   @Test
-  void itShouldBePossibleToInsertAndRetrieveNotesForAUser() throws DataNotFoundException {
-    IInMemoryDatastore store = new InMemoryDataSore();
+  void itShouldBePossibleToInsertAndRetrieveNotesForAUser() throws KeyNotFoundException, DuplicateKeyException {
+    IInMemoryDatastore store = new InMemoryDataStore();
     User olivier = User.builder().username("oliechti").build();
     store.insertUser(olivier);
 
@@ -70,8 +84,19 @@ class InMemoryDataSoreTest {
   }
 
   @Test
-  void itShouldBePossibleToMarkANoteAsDeleted() throws DataNotFoundException {
-    IInMemoryDatastore store = new InMemoryDataSore();
+  void itShouldThrowAnExceptionWhenInsertingAUserWithDuplicateKey() throws DuplicateKeyException {
+    IInMemoryDatastore store = new InMemoryDataStore();
+    User olivier = User.builder().username("oliechti").build();
+    User duplicate = User.builder().username("oliechti").build();
+    store.insertUser(olivier);
+    assertThrows(DuplicateKeyException.class, () -> {
+      store.insertUser(duplicate);
+    });
+  }
+
+  @Test
+  void itShouldBePossibleToMarkANoteAsDeleted() throws KeyNotFoundException, DuplicateKeyException {
+    IInMemoryDatastore store = new InMemoryDataStore();
     User olivier = User.builder().username("oliechti").build();
     store.insertUser(olivier);
     Note note1 = Note.builder().author(olivier).content("hello 1").build();
@@ -79,16 +104,16 @@ class InMemoryDataSoreTest {
 
     Note loadedNote = store.getNoteById(noteId);
     assertFalse(loadedNote.isDeleted());
-    assertFalse(store.getNotesByAuthorUsername("oliechti", InMemoryDataSore.INCLUDE_DELETED).get(0).isDeleted());
+    assertFalse(store.getNotesByAuthorUsername("oliechti", InMemoryDataStore.INCLUDE_DELETED).get(0).isDeleted());
     store.deleteNote(noteId);
     loadedNote = store.getNoteById(noteId);
     assertTrue(loadedNote.isDeleted());
-    assertTrue(store.getNotesByAuthorUsername("oliechti", InMemoryDataSore.INCLUDE_DELETED).get(0).isDeleted());
+    assertTrue(store.getNotesByAuthorUsername("oliechti", InMemoryDataStore.INCLUDE_DELETED).get(0).isDeleted());
   }
 
   @Test
-  void itShouldAllowMeToRetrieveDeletedAndUndeletedNotes() throws DataNotFoundException {
-    IInMemoryDatastore store = new InMemoryDataSore();
+  void itShouldAllowMeToRetrieveDeletedAndUndeletedNotes() throws KeyNotFoundException, DuplicateKeyException {
+    IInMemoryDatastore store = new InMemoryDataStore();
     User olivier = User.builder().username("oliechti").build();
     store.insertUser(olivier);
     Note note1 = Note.builder().author(olivier).content("hello 1").build();
@@ -97,54 +122,54 @@ class InMemoryDataSoreTest {
     long note2Id = store.insertNote(olivier.getUsername(), note2);
     store.deleteNote(note1Id);
 
-    assertEquals(2, store.getNotesByAuthorUsername("oliechti", InMemoryDataSore.INCLUDE_DELETED).size());
-    assertEquals(1, store.getNotesByAuthorUsername("oliechti", !InMemoryDataSore.INCLUDE_DELETED).size());
+    assertEquals(2, store.getNotesByAuthorUsername("oliechti", InMemoryDataStore.INCLUDE_DELETED).size());
+    assertEquals(1, store.getNotesByAuthorUsername("oliechti", !InMemoryDataStore.INCLUDE_DELETED).size());
   }
 
   @Test
   void itShouldThrowAnExceptionWhenFetchingInvalidNoteId() {
-    IInMemoryDatastore store = new InMemoryDataSore();
-    assertThrows(DataNotFoundException.class, () -> {
+    IInMemoryDatastore store = new InMemoryDataStore();
+    assertThrows(KeyNotFoundException.class, () -> {
       store.getNoteById(99);
     });
   }
 
   @Test
   void itShouldThrowAnExceptionWhenFetchingInvalidUsername() {
-    IInMemoryDatastore store = new InMemoryDataSore();
-    assertThrows(DataNotFoundException.class, () -> {
+    IInMemoryDatastore store = new InMemoryDataStore();
+    assertThrows(KeyNotFoundException.class, () -> {
       store.loadUserByUsername("doesnotexist");
     });
   }
 
   @Test
   void itShouldThrowAnExceptionWhenUpdatingMissingUser() {
-    IInMemoryDatastore store = new InMemoryDataSore();
-    assertThrows(DataNotFoundException.class, () -> {
+    IInMemoryDatastore store = new InMemoryDataStore();
+    assertThrows(KeyNotFoundException.class, () -> {
       store.updateUser(User.builder().username("doesnotexist").build());
     });
   }
 
   @Test
   void itShouldThrowAnExceptionWhenLoadingNotesWithMissingUser() {
-    IInMemoryDatastore store = new InMemoryDataSore();
-    assertThrows(DataNotFoundException.class, () -> {
-      store.getNotesByAuthorUsername("doesnotexist", InMemoryDataSore.INCLUDE_DELETED);
+    IInMemoryDatastore store = new InMemoryDataStore();
+    assertThrows(KeyNotFoundException.class, () -> {
+      store.getNotesByAuthorUsername("doesnotexist", InMemoryDataStore.INCLUDE_DELETED);
     });
   }
 
   @Test
   void itShouldThrowAnExceptionWhenInsertingNoteForMissingUser() {
-    IInMemoryDatastore store = new InMemoryDataSore();
-    assertThrows(DataNotFoundException.class, () -> {
+    IInMemoryDatastore store = new InMemoryDataStore();
+    assertThrows(KeyNotFoundException.class, () -> {
       store.insertNote("doesnotexist", Note.builder().build());
     });
   }
 
   @Test
   void itShouldThrowAnExceptionWhenUpdatingNoteWithMissingUser() {
-    IInMemoryDatastore store = new InMemoryDataSore();
-    assertThrows(DataNotFoundException.class, () -> {
+    IInMemoryDatastore store = new InMemoryDataStore();
+    assertThrows(KeyNotFoundException.class, () -> {
       User author = User.builder().username("doesnotexit").build();
       store.updateNote(Note.builder().author(author).build());
     });
@@ -152,8 +177,8 @@ class InMemoryDataSoreTest {
 
   @Test
   void itShouldThrowAnExceptionWhenDeletingNoteWithMissingId() {
-    IInMemoryDatastore store = new InMemoryDataSore();
-    assertThrows(DataNotFoundException.class, () -> {
+    IInMemoryDatastore store = new InMemoryDataStore();
+    assertThrows(KeyNotFoundException.class, () -> {
       store.deleteNote(999);
     });
   }
